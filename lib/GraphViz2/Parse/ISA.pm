@@ -4,21 +4,26 @@ use strict;
 use warnings;
 use warnings  qw(FATAL utf8); # Fatalize encoding glitches.
 
+our $VERSION = '2.49';
+
 use Algorithm::Dependency;
 use Algorithm::Dependency::Source::HoA;
-
 use Class::ISA;
 use Class::Load 'try_load_class';
-
 use GraphViz2;
-
 use Moo;
-
 use Tree::DAG_Node;
 
 has graph =>
 (
-	default  => sub{return ''},
+	default  => sub {
+		GraphViz2->new(
+			edge   => {color => 'grey'},
+			global => {directed => 1},
+			graph  => {rankdir => 'BT'},
+			node   => {color => 'blue', shape => 'Mrecord'},
+		)
+        },
 	is       => 'rw',
 	#isa     => 'GraphViz2',
 	required => 0,
@@ -31,8 +36,6 @@ has is_a =>
 	#isa     => 'HashRef',
 	required => 0,
 );
-
-our $VERSION = '2.49';
 
 # -----------------------------------------------
 
@@ -62,29 +65,6 @@ sub add
 	return $self;
 
 } # End of add.
-
-# -----------------------------------------------
-
-sub BUILD
-{
-	my($self) = @_;
-
-	$self -> graph
-	(
-		$self -> graph ||
-		GraphViz2 -> new
-		(
-			edge   => {color => 'grey'},
-			global => {directed => 1},
-			graph  => {rankdir => 'BT'},
-			logger => '',
-			node   => {color => 'blue', shape => 'Mrecord'},
-		)
-	);
-
-} # End of BUILD.
-
-# -----------------------------------------------
 
 sub _build_dependency
 {
@@ -176,28 +156,11 @@ L<GraphViz2::Parse::ISA> - Visualize N Perl class hierarchies as a graph
 	use GraphViz2;
 	use GraphViz2::Parse::ISA;
 
-	use Log::Handler;
-
-	# ------------------------------------------------
-
-	my($logger) = Log::Handler -> new;
-
-	$logger -> add
-		(
-		 screen =>
-		 {
-			 maxlevel       => 'debug',
-			 message_layout => '%m',
-			 minlevel       => 'error',
-		 }
-		);
-
 	my($graph) = GraphViz2 -> new
 		(
 		 edge   => {color => 'grey'},
 		 global => {directed => 1},
 		 graph  => {rankdir => 'BT'},
-		 logger => $logger,
 		 node   => {color => 'blue', shape => 'Mrecord'},
 		);
 	my($parser) = GraphViz2::Parse::ISA -> new(graph => $graph);
@@ -237,9 +200,9 @@ Key-value pairs accepted in the parameter list:
 
 This option specifies the GraphViz2 object to use. This allows you to configure it as desired.
 
-The default is GraphViz2 -> new. The default attributes are the same as
-in the synopsis, above, except for the logger of course, which defaults to
-''. The default for L<GraphViz2::Parse::ISA> is to plot from the bottom to
+The default is GraphViz2->new. The default attributes are the same as
+in the synopsis, above.
+The default for L<GraphViz2::Parse::ISA> is to plot from the bottom to
 the top (Grandchild to Parent).  This is the opposite of L<GraphViz2>.
 
 This key is optional.
