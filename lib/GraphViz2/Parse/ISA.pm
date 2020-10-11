@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use warnings  qw(FATAL utf8); # Fatalize encoding glitches.
 
-our $VERSION = '2.49';
+our $VERSION = '2.50';
 
 use Algorithm::Dependency;
 use Algorithm::Dependency::Source::HoA;
