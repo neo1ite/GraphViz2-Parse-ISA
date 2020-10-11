@@ -1,3 +1,5 @@
+- stop using GraphViz2->dependency when is actually ours
+
 2.50 2020-10-11
 - zap pointless logger attribute
 

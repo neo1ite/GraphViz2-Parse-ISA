@@ -86,12 +86,14 @@ sub _build_dependency
 sub generate_graph
 {
 	my($self) = @_;
-
-	return $self -> graph -> dependency(data => Algorithm::Dependency -> new(source => Algorithm::Dependency::Source::HoA -> new($self -> is_a) ) );
-
+	my $data = Algorithm::Dependency->new(source => Algorithm::Dependency::Source::HoA->new($self->is_a));
+	die 'Error: No dependency data provided' if !$data;
+	my $g = $self->graph;
+	for my $item (sort {$a->id cmp $b->id} $data->source->items) {
+		$g->add_node(name => $item->id);
+		$g->add_edge(from => $item->id, to => $_) for $item->depends;
+	}
 } # End of generate_graph.
-
-# -----------------------------------------------
 
 sub _process_is_a
 {
