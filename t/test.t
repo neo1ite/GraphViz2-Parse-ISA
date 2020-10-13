@@ -10,16 +10,21 @@ use Algorithm::Dependency::Source::HoA;
 
 my $g = GraphViz2->new;
 my $data = {
-  'Adult' => [],
-  'Adult::Child1' => [qw/Adult/],
-  'Adult::Child2' => [qw/Adult/],
+  'Adult'                    => [],
+  'Adult::Child1'            => [qw/Adult/],
+  'Adult::Child2'            => [qw/Adult/],
   'Adult::Child::Grandchild' => [qw/Adult::Child1 Adult::Child2/],
 };
-$g->dependency(
-  data => Algorithm::Dependency->new(
-    source => Algorithm::Dependency::Source::HoA->new($data),
-  ),
+my $d = Algorithm::Dependency->new(
+    source => Algorithm::Dependency::Source::HoA->new($data)
 );
+die 'Error: No dependency data provided' if !$d;
+
+for my $item (sort {$a->id cmp $b->id} $d->source->items) {
+    $g->add_node(name => $item->id);
+    $g->add_edge(from => $item->id, to => $_) for $item->depends;
+}
+
 is_deeply_snapshot $g->node_hash, 'nodes dep';
 is_deeply_snapshot $g->edge_hash, 'edges dep';
 
